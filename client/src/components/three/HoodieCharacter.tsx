@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useGLTF, useAnimations } from "@react-three/drei";
 import { GLTF, SkeletonUtils } from "three-stdlib";
-import { useGraph } from "@react-three/fiber";
+import { useGraph, GroupProps } from "@react-three/fiber";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -56,11 +56,10 @@ type ActionName =
   | "CharacterArmature|Walk"
   | "CharacterArmature|Wave";
 
-interface Props {
+interface Props extends GroupProps {
   hairColor: string;
   topColor: string;
   bottomColor: string;
-  props?: JSX.IntrinsicElements["group"];
 }
 
 export default function HoodieCharacter({

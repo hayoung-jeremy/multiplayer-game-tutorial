@@ -1,11 +1,22 @@
 import { ContactShadows, Environment, OrbitControls } from "@react-three/drei";
 import HoodieCharacter from "./HoodieCharacter";
+import { useAtom, useAtomValue } from "jotai";
+import { charactersAtom } from "../jotai/users";
 
 const Experience = () => {
+  const characters = useAtomValue(charactersAtom);
+
   return (
     <>
-      <HoodieCharacter hairColor="pink" topColor="blue" bottomColor="green" />
-      <HoodieCharacter position-x={1} hairColor="red" topColor="yellow" bottomColor="white" />
+      {characters.map(character => (
+        <HoodieCharacter
+          key={character.id}
+          position={character.position}
+          hairColor={character.hairColor}
+          topColor={character.topColor}
+          bottomColor={character.bottomColor}
+        />
+      ))}
       <OrbitControls />
       <ContactShadows blur={2} />
       <Environment preset="sunset" />
@@ -14,4 +25,3 @@ const Experience = () => {
 };
 
 export default Experience;
- 
