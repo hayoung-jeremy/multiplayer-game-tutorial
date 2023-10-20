@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from "react";
-import { io } from "socket.io-client";
 import { useSetAtom } from "jotai";
 import { charactersAtom } from "../jotai/users";
-
-const socket = io("http://localhost:3001");
+import { socket } from "@/socket";
 
 const SocketManager = () => {
   const setCharacters = useSetAtom(charactersAtom);
@@ -38,7 +36,7 @@ const SocketManager = () => {
       socket.off("hello", onHello);
       socket.off("characters", onCharacters);
     };
-  }, []);
+  }, [setCharacters]);
 
   return null;
 };

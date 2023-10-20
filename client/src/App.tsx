@@ -6,7 +6,7 @@ function App() {
   return (
     <main className="w-screen h-screen">
       <SocketManager />
-      <Canvas shadows camera={{ position: [0, 0, 10] }}>
+      <Canvas shadows camera={{ position: [6, 6, 6], fov: 30 }}>
         <Experience />
       </Canvas>
     </main>
