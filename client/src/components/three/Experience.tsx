@@ -7,6 +7,7 @@ import { charactersAtom } from "../jotai/users";
 import { socket } from "@/socket";
 
 import HoodieCharacter from "./HoodieCharacter";
+import Item from "./Item";
 
 const Experience = () => {
   const [isOnFloor, setIsOnFloor] = useState(false);
@@ -24,6 +25,8 @@ const Experience = () => {
           bottomColor={character.bottomColor}
         />
       ))}
+
+      <Item name="Armchair" />
 
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
