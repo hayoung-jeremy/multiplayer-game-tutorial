@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from "react";
 import { useSetAtom } from "jotai";
-import { charactersAtom } from "../jotai/users";
+import { charactersAtom, mapAtom, userAtom } from "../jotai/users";
 import { socket } from "@/socket";
 
 const SocketManager = () => {
   const setCharacters = useSetAtom(charactersAtom);
+  const setMap = useSetAtom(mapAtom);
+  const setUser = useSetAtom(userAtom);
 
   useEffect(() => {
     function onConnect() {
@@ -16,8 +18,11 @@ const SocketManager = () => {
       console.log("disconnected");
     }
 
-    function onHello() {
-      console.log("hello");
+    function onHello(value: any) {
+      console.log("hello", value);
+      setMap(value.map);
+      setUser(value.id);
+      setCharacters(value);
     }
 
     function onCharacters(value: any) {

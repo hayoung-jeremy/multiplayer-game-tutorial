@@ -3,7 +3,7 @@ import { Vector3 } from "three";
 import { ContactShadows, Environment, OrbitControls, useCursor } from "@react-three/drei";
 import { useAtomValue } from "jotai";
 
-import { charactersAtom } from "../jotai/users";
+import { charactersAtom, mapAtom } from "../jotai/users";
 import { socket } from "@/socket";
 
 import HoodieCharacter from "./HoodieCharacter";
@@ -13,6 +13,7 @@ const Experience = () => {
   const [isOnFloor, setIsOnFloor] = useState(false);
   useCursor(isOnFloor);
   const characters = useAtomValue(charactersAtom);
+  const map = useAtomValue(mapAtom);
 
   return (
     <>
@@ -26,20 +27,27 @@ const Experience = () => {
         />
       ))}
 
-      <Item name="Armchair" />
+      {map &&
+        map.items.map((item, idx) => {
+          return <Item key={`${item}-${idx}`} item={item} />;
+        })}
 
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position-y={-0.001}
-        onClick={e => {
-          socket.emit("move", [e.point.x, 0, e.point.z]);
-        }}
-        onPointerEnter={() => setIsOnFloor(true)}
-        onPointerLeave={() => setIsOnFloor(false)}
-      >
-        <planeGeometry args={[10, 10]} />
-        <meshStandardMaterial color="#f0f0f0" />
-      </mesh>
+      {map && (
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position-x={map.size[0] / 2}
+          position-y={-0.001}
+          position-z={map.size[1] / 2}
+          onClick={e => {
+            socket.emit("move", [e.point.x, 0, e.point.z]);
+          }}
+          onPointerEnter={() => setIsOnFloor(true)}
+          onPointerLeave={() => setIsOnFloor(false)}
+        >
+          <planeGeometry args={map.size} />
+          <meshStandardMaterial color="#f0f0f0" />
+        </mesh>
+      )}
 
       <OrbitControls />
       <ContactShadows blur={2} />
