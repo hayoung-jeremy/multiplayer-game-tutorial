@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useGLTF, useAnimations } from "@react-three/drei";
 import { GLTF, SkeletonUtils } from "three-stdlib";
-import { useGraph, GroupProps } from "@react-three/fiber";
+import { useGraph, GroupProps, useFrame } from "@react-three/fiber";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -62,12 +62,15 @@ interface Props extends GroupProps {
   bottomColor: string;
 }
 
+const MOVEMENT_SPEED = 0.032;
+
 export default function HoodieCharacter({
   hairColor = "pink",
   topColor = "red",
   bottomColor = "brown",
   ...props
 }: Props) {
+  const position = useMemo(() => props.position, []);
   const group = useRef<THREE.Group>(null);
   const { scene, materials, animations } = useGLTF("/models/HoodieCharacter.glb") as GLTFResult;
 
@@ -79,15 +82,30 @@ export default function HoodieCharacter({
   const [currentAnim, setCurrentAnim] = useState<ActionName>("CharacterArmature|Idle");
 
   useEffect(() => {
-    actions[currentAnim]?.reset().fadeIn(0.5).play();
+    actions[currentAnim]?.reset().fadeIn(0.32).play();
 
     return () => {
-      actions[currentAnim]?.fadeOut(0.5);
+      actions[currentAnim]?.fadeOut(0.32);
     };
   }, [actions, currentAnim]);
 
+  useFrame(() => {
+    const character = group.current;
+    const characterPos = props.position as THREE.Vector3;
+
+    if (!character || characterPos === undefined) return;
+    if (character.position.distanceTo(characterPos) > 0.1) {
+      const direction = character.position.clone().sub(characterPos).normalize().multiplyScalar(MOVEMENT_SPEED);
+      character.position.sub(direction);
+      character.lookAt(characterPos);
+      setCurrentAnim("CharacterArmature|Walk");
+    } else {
+      setCurrentAnim("CharacterArmature|Idle");
+    }
+  });
+
   return (
-    <group ref={group} {...props} dispose={null}>
+    <group ref={group} {...props} position={position} dispose={null}>
       <group name="Root_Scene">
         <group name="RootNode">
           <group name="CharacterArmature" rotation={[-Math.PI / 2, 0, 0]} scale={100}>

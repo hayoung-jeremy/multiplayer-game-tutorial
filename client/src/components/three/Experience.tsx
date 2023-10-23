@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Vector3 } from "three";
 import { ContactShadows, Environment, OrbitControls, useCursor } from "@react-three/drei";
 import { useAtomValue } from "jotai";
 
@@ -17,7 +18,7 @@ const Experience = () => {
       {characters.map(character => (
         <HoodieCharacter
           key={character.id}
-          position={character.position}
+          position={new Vector3(character.position[0], character.position[1], character.position[2])}
           hairColor={character.hairColor}
           topColor={character.topColor}
           bottomColor={character.bottomColor}
