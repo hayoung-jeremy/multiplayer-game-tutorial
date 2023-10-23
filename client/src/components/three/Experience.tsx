@@ -20,6 +20,7 @@ const Experience = () => {
       {characters.map(character => (
         <HoodieCharacter
           key={character.id}
+          userId={character.id}
           position={new Vector3(character.position[0], character.position[1], character.position[2])}
           hairColor={character.hairColor}
           topColor={character.topColor}
@@ -50,7 +51,6 @@ const Experience = () => {
       )}
 
       <OrbitControls />
-      <ContactShadows blur={2} />
       <Environment preset="sunset" />
     </>
   );

@@ -51,12 +51,37 @@ const map = {
   items: [
     {
       ...items.armchair,
-      gridPosition: [4, 4],
+      gridPosition: [9, 6],
     },
     {
       ...items.armchair,
-      gridPosition: [4, 6],
+      gridPosition: [9, 10],
       rotation: 2,
+    },
+    {
+      ...items.bed,
+      gridPosition: [15, 0],
+      rotation: 0,
+    },
+    {
+      ...items.desk,
+      gridPosition: [0, 8],
+      rotation: 1,
+    },
+    {
+      ...items.couch,
+      gridPosition: [0, 0],
+      rotation: 1,
+    },
+    {
+      ...items.table,
+      gridPosition: [8, 8],
+      rotation: 0,
+    },
+    {
+      ...items.grandfathersClock,
+      gridPosition: [0, 12],
+      rotation: 1,
     },
   ],
 };

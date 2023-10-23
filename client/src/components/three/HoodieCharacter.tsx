@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { useGLTF, useAnimations } from "@react-three/drei";
 import { GLTF, SkeletonUtils } from "three-stdlib";
 import { useGraph, GroupProps, useFrame } from "@react-three/fiber";
+import { useGLTF, useAnimations } from "@react-three/drei";
+import { useAtomValue } from "jotai";
+import { userAtom } from "../jotai/users";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -57,6 +59,7 @@ type ActionName =
   | "CharacterArmature|Wave";
 
 interface Props extends GroupProps {
+  userId: string;
   hairColor: string;
   topColor: string;
   bottomColor: string;
@@ -65,6 +68,7 @@ interface Props extends GroupProps {
 const MOVEMENT_SPEED = 0.032;
 
 export default function HoodieCharacter({
+  userId,
   hairColor = "pink",
   topColor = "red",
   bottomColor = "brown",
@@ -80,6 +84,7 @@ export default function HoodieCharacter({
   const { actions } = useAnimations(animations, group);
 
   const [currentAnim, setCurrentAnim] = useState<ActionName>("CharacterArmature|Idle");
+  const user = useAtomValue(userAtom);
 
   useEffect(() => {
     actions[currentAnim]?.reset().fadeIn(0.32).play();
@@ -89,11 +94,11 @@ export default function HoodieCharacter({
     };
   }, [actions, currentAnim]);
 
-  useFrame(() => {
+  useFrame(state => {
     const character = group.current;
     const characterPos = props.position as THREE.Vector3;
 
-    if (!character || characterPos === undefined) return;
+    if (!character || characterPos === undefined || !user) return;
     if (character.position.distanceTo(characterPos) > 0.1) {
       const direction = character.position.clone().sub(characterPos).normalize().multiplyScalar(MOVEMENT_SPEED);
       character.position.sub(direction);
@@ -101,6 +106,13 @@ export default function HoodieCharacter({
       setCurrentAnim("CharacterArmature|Walk");
     } else {
       setCurrentAnim("CharacterArmature|Idle");
+    }
+
+    if (userId === user) {
+      state.camera.position.x = character.position.x + 8;
+      state.camera.position.y = character.position.y + 8;
+      state.camera.position.z = character.position.z + 8;
+      state.camera.lookAt(character.position);
     }
   });
 
