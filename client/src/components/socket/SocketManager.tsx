@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useSetAtom } from "jotai";
 import { charactersAtom, mapAtom, userAtom } from "../jotai/users";
 import { socket } from "@/socket";
+import { GameObject } from "@/types/socket";
 
 const SocketManager = () => {
   const setCharacters = useSetAtom(charactersAtom);
@@ -18,11 +19,11 @@ const SocketManager = () => {
       console.log("disconnected");
     }
 
-    function onHello(value: any) {
+    function onHello(value: GameObject) {
       console.log("hello", value);
-      setMap(value.map);
+      setMap(value.gameMap);
       setUser(value.id);
-      setCharacters(value);
+      setCharacters(value.characters);
     }
 
     function onCharacters(value: any) {

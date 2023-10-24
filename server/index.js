@@ -1,4 +1,8 @@
 import { Server } from "socket.io";
+import pathfinding from "pathfinding";
+
+import { gameMap, gameItems } from "./constants/index.js";
+import { generateRandomPosition, generateRandomHexColor } from "./utils/index.js";
 
 const io = new Server({
   cors: {
@@ -9,90 +13,10 @@ const io = new Server({
 io.listen(3001);
 
 const characters = [];
+.
 
-const items = {
-  bed: {
-    name: "Bed",
-    size: [5, 7],
-  },
-  desk: {
-    name: "Desk",
-    size: [5, 3],
-  },
-  couch: {
-    name: "Couch",
-    size: [6, 5],
-  },
-  table: {
-    name: "Table",
-    size: [5, 3],
-  },
-  grandfathersClock: {
-    name: "GrandfathersClock",
-    size: [2, 1],
-  },
-  cabinet: {
-    name: "Cabinet",
-    size: [2, 1],
-  },
-  armchair: {
-    name: "Armchair",
-    size: [3, 2],
-  },
-  bookshelf: {
-    name: "Bookshelf",
-    size: [3, 1],
-  },
-};
 
-const map = {
-  size: [10, 10],
-  gridDivision: 2,
-  items: [
-    {
-      ...items.armchair,
-      gridPosition: [9, 6],
-    },
-    {
-      ...items.armchair,
-      gridPosition: [9, 10],
-      rotation: 2,
-    },
-    {
-      ...items.bed,
-      gridPosition: [15, 0],
-      rotation: 0,
-    },
-    {
-      ...items.desk,
-      gridPosition: [0, 8],
-      rotation: 1,
-    },
-    {
-      ...items.couch,
-      gridPosition: [0, 0],
-      rotation: 1,
-    },
-    {
-      ...items.table,
-      gridPosition: [8, 8],
-      rotation: 0,
-    },
-    {
-      ...items.grandfathersClock,
-      gridPosition: [0, 12],
-      rotation: 1,
-    },
-  ],
-};
-
-const generateRandomPosition = () => {
-  return [Math.random() * map.size[0], 0, Math.random() * map.size[1]];
-};
-
-const generateRandomHexColor = () => {
-  return "#" + Math.floor(Math.random() * 16777215).toString(16);
-};
+const grid = new pathfinding.Grid(gameMap.size[0] * gameMap.gridDivision, gameMap.size[1] * gameMap.gridDivision);
 
 io.on("connection", socket => {
   console.log("user connected");
@@ -106,10 +30,10 @@ io.on("connection", socket => {
   });
 
   socket.emit("hello", {
-    map,
+    gameMap,
     characters,
     id: socket.id,
-    items,
+    gameItems,
   });
   io.emit("characters", characters);
 

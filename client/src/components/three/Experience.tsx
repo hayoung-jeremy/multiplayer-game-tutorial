@@ -13,7 +13,7 @@ const Experience = () => {
   const [isOnFloor, setIsOnFloor] = useState(false);
   useCursor(isOnFloor);
   const characters = useAtomValue(charactersAtom);
-  const map = useAtomValue(mapAtom);
+  const gameMap = useAtomValue(mapAtom);
 
   return (
     <>
@@ -28,24 +28,24 @@ const Experience = () => {
         />
       ))}
 
-      {map &&
-        map.items.map((item, idx) => {
+      {gameMap &&
+        gameMap.gameItems.map((item, idx) => {
           return <Item key={`${item}-${idx}`} item={item} />;
         })}
 
-      {map && (
+      {gameMap && (
         <mesh
           rotation={[-Math.PI / 2, 0, 0]}
-          position-x={map.size[0] / 2}
+          position-x={gameMap.size[0] / 2}
           position-y={-0.001}
-          position-z={map.size[1] / 2}
+          position-z={gameMap.size[1] / 2}
           onClick={e => {
             socket.emit("move", [e.point.x, 0, e.point.z]);
           }}
           onPointerEnter={() => setIsOnFloor(true)}
           onPointerLeave={() => setIsOnFloor(false)}
         >
-          <planeGeometry args={map.size} />
+          <planeGeometry args={gameMap.size} />
           <meshStandardMaterial color="#f0f0f0" />
         </mesh>
       )}
