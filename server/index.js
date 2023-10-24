@@ -13,8 +13,6 @@ const io = new Server({
 io.listen(3001);
 
 const characters = [];
-.
-
 
 const grid = new pathfinding.Grid(gameMap.size[0] * gameMap.gridDivision, gameMap.size[1] * gameMap.gridDivision);
 
