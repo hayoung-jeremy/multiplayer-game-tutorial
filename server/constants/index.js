@@ -31,6 +31,15 @@ export const gameItems = {
     name: "Bookshelf",
     size: [3, 1],
   },
+  wallCorkboard: {
+    name: "WallCorkboard",
+    size: [3, 1],
+    wall: true,
+  },
+  rug: {
+    name: "Rug",
+    size: [4, 6],
+  },
 };
 
 export const gameMap = {
@@ -70,6 +79,16 @@ export const gameMap = {
       ...gameItems.grandfathersClock,
       gridPosition: [0, 12],
       rotation: 1,
+    },
+    {
+      ...gameItems.wallCorkboard,
+      gridPosition: [8, 0],
+      rotation: 0,
+    },
+    {
+      ...gameItems.rug,
+      gridPosition: [10, 0],
+      rotation: 0,
     },
   ],
 };

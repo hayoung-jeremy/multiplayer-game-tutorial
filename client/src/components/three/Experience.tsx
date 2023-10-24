@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Vector3 } from "three";
-import { ContactShadows, Environment, OrbitControls, useCursor } from "@react-three/drei";
+import { ContactShadows, Environment, Grid, OrbitControls, useCursor } from "@react-three/drei";
 import { useAtomValue } from "jotai";
 
 import { charactersAtom, mapAtom } from "../jotai/users";
@@ -49,6 +49,7 @@ const Experience = () => {
           <meshStandardMaterial color="#f0f0f0" />
         </mesh>
       )}
+      <Grid infiniteGrid fadeDistance={50} fadeStrength={5} />
 
       <OrbitControls />
       <Environment preset="sunset" />
