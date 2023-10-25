@@ -63,6 +63,7 @@ interface Props extends GroupProps {
   hairColor: string;
   topColor: string;
   bottomColor: string;
+  path: number[];
 }
 
 const MOVEMENT_SPEED = 0.032;
@@ -72,6 +73,7 @@ export default function HoodieCharacter({
   hairColor = "pink",
   topColor = "red",
   bottomColor = "brown",
+  path,
   ...props
 }: Props) {
   const position = useMemo(() => props.position, []);
@@ -117,7 +119,7 @@ export default function HoodieCharacter({
   });
 
   return (
-    <group ref={group} {...props} position={position} dispose={null}>
+    <group ref={group} {...props} name={`character-${userId}`} position={position} dispose={null}>
       <group name="Root_Scene">
         <group name="RootNode">
           <group name="CharacterArmature" rotation={[-Math.PI / 2, 0, 0]} scale={100}>

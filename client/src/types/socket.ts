@@ -4,6 +4,7 @@ export interface GameCharacter {
   hairColor: string;
   topColor: string;
   bottomColor: string;
+  path: number[];
 }
 
 interface GameItemProps {

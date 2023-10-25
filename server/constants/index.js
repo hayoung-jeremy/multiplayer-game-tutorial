@@ -39,6 +39,7 @@ export const gameItems = {
   rug: {
     name: "Rug",
     size: [4, 6],
+    walkable: true,
   },
 };
 
