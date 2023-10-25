@@ -12,9 +12,10 @@ interface Props {
   onClick: () => void;
   isDragging: boolean;
   dragPosition: [number, number] | null;
+  canDrop: boolean;
 }
 
-const Item = ({ item, onClick, isDragging, dragPosition }: Props) => {
+const Item = ({ item, onClick, isDragging, dragPosition, canDrop }: Props) => {
   const { name, size, gridPosition, rotation } = item;
 
   const { scene } = useGLTF(`models/items/${name}.glb`);
@@ -29,12 +30,18 @@ const Item = ({ item, onClick, isDragging, dragPosition }: Props) => {
   if (!map) return null;
 
   return (
-    <primitive
+    <group
       onClick={onClick}
-      object={clone}
       position={gridToVector3(isDragging ? dragPosition || gridPosition : gridPosition, width, height)}
-      rotation-y={rotation ? (rotation * Math.PI) / 2 : 0}
-    />
+    >
+      <primitive object={clone} rotation-y={rotation ? (rotation * Math.PI) / 2 : 0} />
+      {isDragging && (
+        <mesh>
+          <boxGeometry args={[width / map.gridDivision, 0.1, height / map.gridDivision]} />
+          <meshBasicMaterial color={canDrop ? "green" : "red"} transparent opacity={0.3} />
+        </mesh>
+      )}
+    </group> 
   );
 };
 

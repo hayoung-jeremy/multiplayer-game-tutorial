@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useThree } from "@react-three/fiber";
 import { Environment, Grid, OrbitControls, useCursor } from "@react-three/drei";
 import { useAtomValue } from "jotai";
@@ -25,6 +25,8 @@ const Experience = () => {
   const [draggedItem, setDraggedItem] = useState<any>(null);
   const [dragPosition, setDragPosition] = useState<[number, number] | null>(null);
   const [items, setItems] = useState(gameMap?.gameItems);
+  const [canDrop, setCanDrop] = useState(false);
+
   const [isOnFloor, setIsOnFloor] = useState(false);
   useCursor(isOnFloor);
 
@@ -38,14 +40,62 @@ const Experience = () => {
 
   const onNavigateBuildMode = (e: any) => {
     if (draggedItem !== null) {
-      setItems(prev => {
-        const newItems = [...prev];
-        newItems[draggedItem].gridPosition = vector3ToGrid(e.point);
-        return newItems;
-      });
+      if (canDrop) {
+        setItems(prev => {
+          const newItems = [...(prev || [])];
+
+          newItems[draggedItem].gridPosition = vector3ToGrid(e.point);
+          return newItems;
+        });
+      }
       setDraggedItem(null);
     }
   };
+
+  useEffect(() => {
+    if (!draggedItem || !items || !dragPosition || !gameMap) return;
+
+    const item = items[draggedItem];
+    const width = item.rotation === 1 || item.rotation === 3 ? item.size[1] : item.size[0];
+    const height = item.rotation === 1 || item.rotation === 3 ? item.size[0] : item.size[1];
+
+    let droppable = true;
+
+    // check if item is in bounds
+    if (dragPosition[0] < 0 || dragPosition[0] + width > gameMap.size[0] * gameMap.gridDivision) {
+      droppable = false;
+    }
+
+    if (dragPosition[1] < 0 || dragPosition[1] + height > gameMap.size[1] * gameMap.gridDivision) {
+      droppable = false;
+    }
+
+    // check if item is not colliding with other items
+    if (!item.walkable && !item.wall) {
+      items.forEach((otherItem, idx) => {
+        // ignore self
+        if (idx === draggedItem) return;
+
+        // ignore wall and floor
+        if (otherItem.walkable || otherItem.wall) return;
+
+        // check item overlapped
+        const otherWidth = otherItem.rotation === 1 || otherItem.rotation === 3 ? otherItem.size[1] : otherItem.size[0];
+        const otherHeight =
+          otherItem.rotation === 1 || otherItem.rotation === 3 ? otherItem.size[0] : otherItem.size[1];
+
+        if (
+          dragPosition[0] < otherItem.gridPosition[0] + otherWidth &&
+          dragPosition[0] + width > otherItem.gridPosition[0] &&
+          dragPosition[1] < otherItem.gridPosition[1] + otherHeight &&
+          dragPosition[1] + height > otherItem.gridPosition[1]
+        ) {
+          droppable = false;
+        }
+      });
+    }
+    setCanDrop(droppable);
+  }, [dragPosition, draggedItem, items]);
 
   if (!gameMap) return;
 
@@ -64,7 +114,7 @@ const Experience = () => {
           />
         ))}
 
-      {(isBuildMode ? items : gameMap.gameItems)!.map((item, idx) => {
+      {(isBuildMode ? items : gameMap.gameItems)?.map((item, idx) => {
         return (
           <Item
             key={`${item}-${idx}`}
@@ -72,6 +122,7 @@ const Experience = () => {
             onClick={() => setDraggedItem((prev: null) => (prev === null ? idx : prev))}
             isDragging={draggedItem === idx}
             dragPosition={dragPosition}
+            canDrop={canDrop}
           />
         );
       })}

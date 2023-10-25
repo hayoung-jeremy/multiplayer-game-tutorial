@@ -19,6 +19,8 @@ type GameItemsDictionary = {
 export interface PositionedGameItem extends GameItemProps {
   gridPosition: [number, number];
   rotation?: number;
+  walkable?: boolean;
+  wall?: boolean;
 }
 
 export interface GameMap {
