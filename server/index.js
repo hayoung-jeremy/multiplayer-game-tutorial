@@ -34,9 +34,7 @@ const findPath = (start, end) => {
 
 const updateGrid = () => {
   gameMap.gameItems.forEach(item => {
-    if (item.walkable || item.wall) {
-      return;
-    }
+    if (item.walkable || item.wall) return;
 
     const width = item.rotation === 1 || item.rotation === 3 ? item.size[1] : item.size[0];
     const height = item.rotation === 1 || item.rotation === 3 ? item.size[0] : item.size[1];
@@ -83,6 +81,8 @@ io.on("connection", socket => {
     const character = characters.find(character => character.id === socket.id);
     const path = findPath(from, to);
     if (!path) return;
+
+    console.log("path : ", path);
 
     character.position = from;
     character.path = path;

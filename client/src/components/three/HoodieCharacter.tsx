@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTF, SkeletonUtils } from "three-stdlib";
@@ -5,6 +6,7 @@ import { useGraph, GroupProps, useFrame } from "@react-three/fiber";
 import { useGLTF, useAnimations } from "@react-three/drei";
 import { useAtomValue } from "jotai";
 import { userAtom } from "../jotai/users";
+import { useGrid } from "@/hooks";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -63,7 +65,7 @@ interface Props extends GroupProps {
   hairColor: string;
   topColor: string;
   bottomColor: string;
-  path: number[];
+  path: [number, number][];
 }
 
 const MOVEMENT_SPEED = 0.032;
@@ -76,17 +78,28 @@ export default function HoodieCharacter({
   path,
   ...props
 }: Props) {
-  const position = useMemo(() => props.position, []);
   const group = useRef<THREE.Group>(null);
   const { scene, materials, animations } = useGLTF("/models/HoodieCharacter.glb") as GLTFResult;
-
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { nodes } = useGraph(clone);
-
   const { actions } = useAnimations(animations, group);
+
+  const position = useMemo(() => props.position, []);
 
   const [currentAnim, setCurrentAnim] = useState<ActionName>("CharacterArmature|Idle");
   const user = useAtomValue(userAtom);
+
+  const { gridToVector3 } = useGrid();
+  const [gamePath, setGamePath] = useState<THREE.Vector3[]>();
+
+  useEffect(() => {
+    const newPath: THREE.Vector3[] = [];
+    if (!path) return;
+    path?.forEach(gridPosition => {
+      newPath.push(gridToVector3(gridPosition));
+    });
+    setGamePath(newPath);
+  }, [path]);
 
   useEffect(() => {
     actions[currentAnim]?.reset().fadeIn(0.32).play();
@@ -100,12 +113,15 @@ export default function HoodieCharacter({
     const character = group.current;
     const characterPos = props.position as THREE.Vector3;
 
-    if (!character || characterPos === undefined || !user) return;
-    if (character.position.distanceTo(characterPos) > 0.1) {
-      const direction = character.position.clone().sub(characterPos).normalize().multiplyScalar(MOVEMENT_SPEED);
+    if (!character || characterPos === undefined || !user || !gamePath) return;
+
+    if (gamePath?.length && character.position.distanceTo(gamePath[0]) > 0.1) {
+      const direction = character.position.clone().sub(gamePath[0]).normalize().multiplyScalar(MOVEMENT_SPEED);
       character.position.sub(direction);
-      character.lookAt(characterPos);
+      character.lookAt(gamePath[0]);
       setCurrentAnim("CharacterArmature|Walk");
+    } else if (gamePath.length) {
+      gamePath.shift();
     } else {
       setCurrentAnim("CharacterArmature|Idle");
     }

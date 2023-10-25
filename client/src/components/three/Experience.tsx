@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
-import { Vector3 } from "three";
+import { useThree } from "@react-three/fiber";
 import { Environment, Grid, OrbitControls, useCursor } from "@react-three/drei";
 import { useAtomValue } from "jotai";
 
-import { charactersAtom, mapAtom, userAtom } from "../jotai/users";
-import { socket } from "@/socket";
-
 import HoodieCharacter from "./HoodieCharacter";
 import Item from "./Item";
-import { useThree } from "@react-three/fiber";
+
+import { charactersAtom, mapAtom, userAtom } from "../jotai/users";
+import { socket } from "@/socket";
 import { useGrid } from "@/hooks";
 
 const Experience = () => {
@@ -25,11 +24,11 @@ const Experience = () => {
   const { vector3ToGrid, gridToVector3 } = useGrid();
 
   const onCharacterMove = (e: any) => {
-    const character = scene.getObjectByName(`character-${user}`);
-    console.log("character : ", character);
-    if (!character) return;
+    const player = scene.getObjectByName(`character-${user}`);
 
-    socket.emit("move", vector3ToGrid(character.position), vector3ToGrid(e.point));
+    if (!player) return;
+
+    socket.emit("move", vector3ToGrid(player.position), vector3ToGrid(e.point));
   };
 
   return (
@@ -56,7 +55,7 @@ const Experience = () => {
         <mesh
           rotation={[-Math.PI / 2, 0, 0]}
           position-x={gameMap.size[0] / 2}
-          // position-y={-0.001}
+          position-y={-0.001}
           position-z={gameMap.size[1] / 2}
           onClick={onCharacterMove}
           onPointerEnter={() => setIsOnFloor(true)}

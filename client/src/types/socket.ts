@@ -1,10 +1,10 @@
 export interface GameCharacter {
   id: string;
-  position: [number, number, number];
+  position: [number, number];
   hairColor: string;
   topColor: string;
   bottomColor: string;
-  path: number[];
+  path: [number, number][];
 }
 
 interface GameItemProps {
