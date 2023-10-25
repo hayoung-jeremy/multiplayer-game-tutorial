@@ -6,7 +6,7 @@ import { mapAtom } from "@/components/jotai/users";
 const useGrid = () => {
   const gameMap = useAtomValue(mapAtom);
 
-  const vector3ToGrid = (vector3: Vector3) => {
+  const vector3ToGrid = (vector3: Vector3): [number, number] => {
     if (!gameMap) return [0, 0];
     return [Math.floor(vector3.x * gameMap.gridDivision), Math.floor(vector3.z * gameMap.gridDivision)];
   };

@@ -1,29 +1,38 @@
-import { useGLTF } from "@react-three/drei";
-import { useAtomValue } from "jotai";
-import { MapItem, mapAtom } from "../jotai/users";
 import { useMemo } from "react";
+import { useGLTF } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
+import { useAtomValue } from "jotai";
+
+import { mapAtom } from "../jotai/users";
+import { PositionedGameItem } from "@/types/socket";
+import { useGrid } from "@/hooks";
 
 interface Props {
-  item: MapItem;
+  item: PositionedGameItem;
+  onClick: () => void;
+  isDragging: boolean;
+  dragPosition: [number, number] | null;
 }
 
-const Item = ({ item }: Props) => {
+const Item = ({ item, onClick, isDragging, dragPosition }: Props) => {
   const { name, size, gridPosition, rotation } = item;
-  const map = useAtomValue(mapAtom);
+
   const { scene } = useGLTF(`models/items/${name}.glb`);
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
+  const width = rotation === 1 || rotation === 3 ? size[1] : size[0];
+  const height = rotation === 1 || rotation === 3 ? size[0] : size[1];
+
+  const map = useAtomValue(mapAtom);
+
+  const { gridToVector3 } = useGrid();
 
   if (!map) return null;
 
   return (
     <primitive
+      onClick={onClick}
       object={clone}
-      position={[
-        size[0] / map.gridDivision / 2 + gridPosition[0] / map.gridDivision,
-        0,
-        size[1] / map.gridDivision / 2 + gridPosition[1] / map.gridDivision,
-      ]}
+      position={gridToVector3(isDragging ? dragPosition || gridPosition : gridPosition, width, height)}
       rotation-y={rotation ? (rotation * Math.PI) / 2 : 0}
     />
   );

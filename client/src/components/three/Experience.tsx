@@ -13,6 +13,10 @@ import { socket } from "@/socket";
 import { useGrid } from "@/hooks";
 
 const Experience = () => {
+  const [isBuildMode, setIsBuildMode] = useState(true);
+  const [draggedItem, setDraggedItem] = useState<any>(null);
+  const [dragPosition, setDragPosition] = useState<[number, number] | null>(null);
+
   const [isOnFloor, setIsOnFloor] = useState(false);
   useCursor(isOnFloor);
   const characters = useAtomValue(charactersAtom);
@@ -34,6 +38,7 @@ const Experience = () => {
   return (
     <>
       {gameMap &&
+        !isBuildMode &&
         characters.map(character => (
           <HoodieCharacter
             key={character.id}
@@ -48,7 +53,15 @@ const Experience = () => {
 
       {gameMap &&
         gameMap.gameItems.map((item, idx) => {
-          return <Item key={`${item}-${idx}`} item={item} />;
+          return (
+            <Item
+              key={`${item}-${idx}`}
+              item={item}
+              onClick={() => setDraggedItem((prev: null) => (prev === null ? idx : prev))}
+              isDragging={draggedItem === idx}
+              dragPosition={dragPosition}
+            />
+          );
         })}
 
       {gameMap && (
@@ -60,6 +73,13 @@ const Experience = () => {
           onClick={onCharacterMove}
           onPointerEnter={() => setIsOnFloor(true)}
           onPointerLeave={() => setIsOnFloor(false)}
+          onPointerMove={e => {
+            if (!isBuildMode) return;
+            const newPosition = vector3ToGrid(e.point);
+            if (!dragPosition || dragPosition[0] !== newPosition[0] || dragPosition[1] !== newPosition[1]) {
+              setDragPosition(newPosition);
+            }
+          }}
         >
           <planeGeometry args={gameMap.size} />
           <meshStandardMaterial color="#f0f0f0" />
