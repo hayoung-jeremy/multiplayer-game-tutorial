@@ -33,12 +33,12 @@ const findPath = (start, end) => {
 };
 
 const updateGrid = () => {
-  // // reset
-  // for (let x = 0; x < gameMap.size[0] * gameMap.gridDivision; x++) {
-  //   for (let y = 0; y < gameMap.size[1] * gameMap.gridDivision; y++) {
-  //     grid.setWalkableAt(x, y, true);
-  //   }
-  // }
+  // reset
+  for (let x = 0; x < gameMap.size[0] * gameMap.gridDivision; x++) {
+    for (let y = 0; y < gameMap.size[1] * gameMap.gridDivision; y++) {
+      grid.setWalkableAt(x, y, true);
+    }
+  }
 
   gameMap.gameItems.forEach(item => {
     if (item.walkable || item.wall) return;
@@ -85,6 +85,8 @@ io.on("connection", socket => {
   io.emit("characters", characters);
 
   socket.on("move", (from, to) => {
+    console.log(from);
+    console.log(to);
     const character = characters.find(character => character.id === socket.id);
     const path = findPath(from, to);
     if (!path) return;

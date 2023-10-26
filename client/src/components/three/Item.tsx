@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCursor, useGLTF } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
 import { useAtomValue } from "jotai";
@@ -7,6 +7,7 @@ import { mapAtom } from "../jotai/users";
 import { buildModeAtom } from "../jotai/mode";
 import { PositionedGameItem } from "@/types/socket";
 import { useGrid } from "@/hooks";
+import { isMesh } from "@/utils";
 
 interface Props {
   item: PositionedGameItem;
@@ -33,6 +34,15 @@ const Item = ({ item, onClick, isDragging, dragPosition, dragRotation, canDrop }
   const map = useAtomValue(mapAtom);
 
   const { gridToVector3 } = useGrid();
+
+  useEffect(() => {
+    clone.traverse(child => {
+      if (isMesh(child)) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+  }, []);
 
   if (!map) return null;
 

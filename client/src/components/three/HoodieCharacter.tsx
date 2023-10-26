@@ -147,12 +147,14 @@ export default function HoodieCharacter({
               geometry={(nodes.Casual_Feet_1 as THREE.SkinnedMesh).geometry}
               material={materials.White}
               skeleton={(nodes.Casual_Feet_1 as THREE.SkinnedMesh).skeleton}
+              castShadow
             />
             <skinnedMesh
               name="Casual_Feet_2"
               geometry={(nodes.Casual_Feet_2 as THREE.SkinnedMesh).geometry}
               material={materials.Purple}
               skeleton={(nodes.Casual_Feet_2 as THREE.SkinnedMesh).skeleton}
+              castShadow
             />
           </group>
           <group name="Casual_Legs" rotation={[-Math.PI / 2, 0, 0]} scale={100}>
@@ -161,12 +163,14 @@ export default function HoodieCharacter({
               geometry={(nodes.Casual_Legs_1 as THREE.SkinnedMesh).geometry}
               material={materials.Skin}
               skeleton={(nodes.Casual_Legs_1 as THREE.SkinnedMesh).skeleton}
+              castShadow
             />
             <skinnedMesh
               name="Casual_Legs_2"
               geometry={(nodes.Casual_Legs_2 as THREE.SkinnedMesh).geometry}
               material={materials.LightBlue}
               skeleton={(nodes.Casual_Legs_2 as THREE.SkinnedMesh).skeleton}
+              castShadow
             >
               <meshStandardMaterial color={bottomColor} />
             </skinnedMesh>
@@ -177,24 +181,28 @@ export default function HoodieCharacter({
               geometry={(nodes.Casual_Head_1 as THREE.SkinnedMesh).geometry}
               material={materials.Skin}
               skeleton={(nodes.Casual_Head_1 as THREE.SkinnedMesh).skeleton}
+              castShadow
             />
             <skinnedMesh
               name="Casual_Head_2"
               geometry={(nodes.Casual_Head_2 as THREE.SkinnedMesh).geometry}
               material={materials.Eyebrows}
               skeleton={(nodes.Casual_Head_2 as THREE.SkinnedMesh).skeleton}
+              castShadow
             />
             <skinnedMesh
               name="Casual_Head_3"
               geometry={(nodes.Casual_Head_3 as THREE.SkinnedMesh).geometry}
               material={materials.Eye}
               skeleton={(nodes.Casual_Head_3 as THREE.SkinnedMesh).skeleton}
+              castShadow
             />
             <skinnedMesh
               name="Casual_Head_4"
               geometry={(nodes.Casual_Head_4 as THREE.SkinnedMesh).geometry}
               material={materials.Hair}
               skeleton={(nodes.Casual_Head_4 as THREE.SkinnedMesh).skeleton}
+              castShadow
             >
               <meshStandardMaterial color={hairColor} />
             </skinnedMesh>
@@ -205,6 +213,7 @@ export default function HoodieCharacter({
               geometry={(nodes.Casual_Body_1 as THREE.SkinnedMesh).geometry}
               material={materials.Purple}
               skeleton={(nodes.Casual_Body_1 as THREE.SkinnedMesh).skeleton}
+              castShadow
             >
               <meshStandardMaterial color={topColor} />
             </skinnedMesh>
@@ -213,6 +222,7 @@ export default function HoodieCharacter({
               geometry={(nodes.Casual_Body_2 as THREE.SkinnedMesh).geometry}
               material={materials.Skin}
               skeleton={(nodes.Casual_Body_2 as THREE.SkinnedMesh).skeleton}
+              castShadow
             />
           </group>
         </group>

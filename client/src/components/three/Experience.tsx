@@ -9,7 +9,7 @@ import HoodieCharacter from "./HoodieCharacter";
 import Item from "./Item";
 
 import { charactersAtom, mapAtom, userAtom } from "../jotai/users";
-import { buildModeAtom, draggedItemAtom, draggedItemRotationAtom } from "../jotai/mode";
+import { buildModeAtom, draggedItemAtom, draggedItemRotationAtom, shopModeAtom } from "../jotai/mode";
 import { socket } from "@/socket";
 import { useGrid } from "@/hooks";
 
@@ -24,6 +24,7 @@ const Experience = () => {
   const { vector3ToGrid, gridToVector3 } = useGrid();
 
   const [isBuildMode, setIsBuildMode] = useAtom(buildModeAtom);
+  const isShopMode = useAtomValue(shopModeAtom);
   const [draggedItem, setDraggedItem] = useAtom(draggedItemAtom);
   const [draggedItemRotation, setDraggedItemRotation] = useAtom(draggedItemRotationAtom);
   const [dragPosition, setDragPosition] = useState<[number, number] | null>(null);
@@ -60,8 +61,8 @@ const Experience = () => {
     if (!draggedItem || !items || !dragPosition || !gameMap) return;
 
     const item = items[draggedItem];
-    const width = item.rotation === 1 || item.rotation === 3 ? item.size[1] : item.size[0];
-    const height = item.rotation === 1 || item.rotation === 3 ? item.size[0] : item.size[1];
+    const width = draggedItemRotation === 1 || draggedItemRotation === 3 ? item.size[1] : item.size[0];
+    const height = draggedItemRotation === 1 || draggedItemRotation === 3 ? item.size[0] : item.size[1];
 
     let droppable = true;
 
@@ -99,7 +100,7 @@ const Experience = () => {
       });
     }
     setCanDrop(droppable);
-  }, [dragPosition, draggedItem, items]);
+  }, [dragPosition, draggedItem, items, draggedItemRotation]);
 
   useEffect(() => {
     if (items === null || items.length === 0) return;
@@ -109,14 +110,9 @@ const Experience = () => {
       camera.position.set(8, 8, 8);
       controls.current?.target.set(0, 0, 0);
     } else {
-      console.log("넘기기 전 items : ", items);
       socket.emit("itemsUpdate", items);
     }
   }, [isBuildMode]);
-
-  useEffect(() => {
-    console.log("items : ", items);
-  }, [items]);
 
   if (!gameMap) return;
 
@@ -155,6 +151,7 @@ const Experience = () => {
       })}
 
       <mesh
+        receiveShadow
         rotation={[-Math.PI / 2, 0, 0]}
         position-x={gameMap.size[0] / 2}
         position-y={-0.001}
@@ -173,9 +170,16 @@ const Experience = () => {
         <planeGeometry args={gameMap.size} />
         <meshStandardMaterial color="#f0f0f0" />
       </mesh>
-      <Grid infiniteGrid fadeDistance={50} fadeStrength={5} />
+      {isBuildMode && !isShopMode && <Grid infiniteGrid fadeDistance={50} fadeStrength={5} />}
 
       <color attach="background" args={["#d9e1e9"]} />
+      <directionalLight position={[-4, 4, -4]} castShadow intensity={0.35} shadow-mapSize={[1024, 1024]}>
+        <orthographicCamera
+          attach="shadow-camera"
+          args={[-gameMap.size[0], gameMap.size[1], 10, -10]}
+          far={gameMap.size[0] + gameMap.size[1]}
+        />
+      </directionalLight>
       <OrbitControls
         ref={controls}
         minDistance={5}
