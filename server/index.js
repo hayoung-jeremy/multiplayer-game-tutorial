@@ -33,6 +33,13 @@ const findPath = (start, end) => {
 };
 
 const updateGrid = () => {
+  // // reset
+  // for (let x = 0; x < gameMap.size[0] * gameMap.gridDivision; x++) {
+  //   for (let y = 0; y < gameMap.size[1] * gameMap.gridDivision; y++) {
+  //     grid.setWalkableAt(x, y, true);
+  //   }
+  // }
+
   gameMap.gameItems.forEach(item => {
     if (item.walkable || item.wall) return;
 
@@ -87,6 +94,21 @@ io.on("connection", socket => {
     character.position = from;
     character.path = path;
     io.emit("playerMove", character);
+  });
+
+  socket.on("itemsUpdate", items => {
+    if (items === null) return;
+    console.log("넘어온 items : ", items);
+    gameMap.gameItems = items;
+    characters.forEach(character => {
+      character.path = [];
+      character.position = generateRandomPosition();
+    });
+    updateGrid();
+    io.emit("mapUpdated", {
+      gameMap,
+      characters,
+    });
   });
 
   socket.on("disconnect", () => {

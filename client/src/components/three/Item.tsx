@@ -1,9 +1,10 @@
-import { useMemo } from "react";
-import { useGLTF } from "@react-three/drei";
+import { useMemo, useState } from "react";
+import { useCursor, useGLTF } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
 import { useAtomValue } from "jotai";
 
 import { mapAtom } from "../jotai/users";
+import { buildModeAtom } from "../jotai/mode";
 import { PositionedGameItem } from "@/types/socket";
 import { useGrid } from "@/hooks";
 
@@ -18,8 +19,11 @@ interface Props {
 
 const Item = ({ item, onClick, isDragging, dragPosition, dragRotation, canDrop }: Props) => {
   const { name, size, gridPosition, rotation: itemRotation } = item;
-
   const rotation = isDragging ? dragRotation : itemRotation;
+
+  const isBuildMode = useAtomValue(buildModeAtom);
+  const [isHovered, setIsHovered] = useState(false);
+  useCursor(isBuildMode ? isHovered : false);
 
   const { scene } = useGLTF(`models/items/${name}.glb`);
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
@@ -35,6 +39,8 @@ const Item = ({ item, onClick, isDragging, dragPosition, dragRotation, canDrop }
   return (
     <group
       onClick={onClick}
+      onPointerEnter={() => setIsHovered(true)}
+      onPointerLeave={() => setIsHovered(false)}
       position={gridToVector3(isDragging ? dragPosition || gridPosition : gridPosition, width, height)}
     >
       <primitive object={clone} rotation-y={rotation ? (rotation * Math.PI) / 2 : 0} />

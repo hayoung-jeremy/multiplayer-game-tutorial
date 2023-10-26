@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useThree } from "@react-three/fiber";
 import { Environment, Grid, OrbitControls, useCursor } from "@react-three/drei";
 import { useAtom, useAtomValue } from "jotai";
@@ -14,7 +14,8 @@ import { socket } from "@/socket";
 import { useGrid } from "@/hooks";
 
 const Experience = () => {
-  const scene = useThree(state => state.scene);
+  const { scene, camera } = useThree();
+  const controls = useRef<any>(null);
 
   const characters = useAtomValue(charactersAtom);
   const gameMap = useAtomValue(mapAtom);
@@ -26,7 +27,7 @@ const Experience = () => {
   const [draggedItem, setDraggedItem] = useAtom(draggedItemAtom);
   const [draggedItemRotation, setDraggedItemRotation] = useAtom(draggedItemRotationAtom);
   const [dragPosition, setDragPosition] = useState<[number, number] | null>(null);
-  const [items, setItems] = useState(gameMap?.gameItems);
+  const [items, setItems] = useState(gameMap ? gameMap.gameItems : null);
   const [canDrop, setCanDrop] = useState(false);
 
   const [isOnFloor, setIsOnFloor] = useState(false);
@@ -100,6 +101,23 @@ const Experience = () => {
     setCanDrop(droppable);
   }, [dragPosition, draggedItem, items]);
 
+  useEffect(() => {
+    if (items === null || items.length === 0) return;
+
+    if (isBuildMode) {
+      setItems(gameMap?.gameItems || []);
+      camera.position.set(8, 8, 8);
+      controls.current?.target.set(0, 0, 0);
+    } else {
+      console.log("넘기기 전 items : ", items);
+      socket.emit("itemsUpdate", items);
+    }
+  }, [isBuildMode]);
+
+  useEffect(() => {
+    console.log("items : ", items);
+  }, [items]);
+
   if (!gameMap) return;
 
   return (
@@ -158,7 +176,14 @@ const Experience = () => {
       <Grid infiniteGrid fadeDistance={50} fadeStrength={5} />
 
       <color attach="background" args={["#d9e1e9"]} />
-      <OrbitControls />
+      <OrbitControls
+        ref={controls}
+        minDistance={5}
+        maxDistance={20}
+        minPolarAngle={0}
+        maxPolarAngle={Math.PI / 2}
+        screenSpacePanning={false}
+      />
       <Environment preset="sunset" />
     </>
   );
