@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useThree } from "@react-three/fiber";
 import { Environment, Grid, OrbitControls, useCursor } from "@react-three/drei";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 
 import HoodieCharacter from "./HoodieCharacter";
 import Item from "./Item";
 
 import { charactersAtom, mapAtom, userAtom } from "../jotai/users";
+import { buildModeAtom, draggedItemAtom, draggedItemRotationAtom } from "../jotai/mode";
 import { socket } from "@/socket";
 import { useGrid } from "@/hooks";
 
@@ -21,8 +22,9 @@ const Experience = () => {
 
   const { vector3ToGrid, gridToVector3 } = useGrid();
 
-  const [isBuildMode, setIsBuildMode] = useState(true);
-  const [draggedItem, setDraggedItem] = useState<any>(null);
+  const [isBuildMode, setIsBuildMode] = useAtom(buildModeAtom);
+  const [draggedItem, setDraggedItem] = useAtom(draggedItemAtom);
+  const [draggedItemRotation, setDraggedItemRotation] = useAtom(draggedItemRotationAtom);
   const [dragPosition, setDragPosition] = useState<[number, number] | null>(null);
   const [items, setItems] = useState(gameMap?.gameItems);
   const [canDrop, setCanDrop] = useState(false);
@@ -45,6 +47,7 @@ const Experience = () => {
           const newItems = [...(prev || [])];
 
           newItems[draggedItem].gridPosition = vector3ToGrid(e.point);
+          newItems[draggedItem].rotation = draggedItemRotation;
           return newItems;
         });
       }
@@ -119,9 +122,15 @@ const Experience = () => {
           <Item
             key={`${item}-${idx}`}
             item={item}
-            onClick={() => setDraggedItem((prev: null) => (prev === null ? idx : prev))}
+            onClick={() => {
+              if (isBuildMode) {
+                setDraggedItem(prev => (prev === null ? idx : prev));
+                setDraggedItemRotation(item.rotation || 0);
+              }
+            }}
             isDragging={draggedItem === idx}
             dragPosition={dragPosition}
+            dragRotation={draggedItemRotation}
             canDrop={canDrop}
           />
         );

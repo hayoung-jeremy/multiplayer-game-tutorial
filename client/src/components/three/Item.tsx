@@ -12,11 +12,14 @@ interface Props {
   onClick: () => void;
   isDragging: boolean;
   dragPosition: [number, number] | null;
+  dragRotation: number;
   canDrop: boolean;
 }
 
-const Item = ({ item, onClick, isDragging, dragPosition, canDrop }: Props) => {
-  const { name, size, gridPosition, rotation } = item;
+const Item = ({ item, onClick, isDragging, dragPosition, dragRotation, canDrop }: Props) => {
+  const { name, size, gridPosition, rotation: itemRotation } = item;
+
+  const rotation = isDragging ? dragRotation : itemRotation;
 
   const { scene } = useGLTF(`models/items/${name}.glb`);
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
@@ -41,7 +44,7 @@ const Item = ({ item, onClick, isDragging, dragPosition, canDrop }: Props) => {
           <meshBasicMaterial color={canDrop ? "green" : "red"} transparent opacity={0.3} />
         </mesh>
       )}
-    </group> 
+    </group>
   );
 };
 
