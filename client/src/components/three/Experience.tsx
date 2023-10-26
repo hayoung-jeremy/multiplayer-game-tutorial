@@ -148,6 +148,7 @@ const Experience = () => {
       </mesh>
       <Grid infiniteGrid fadeDistance={50} fadeStrength={5} />
 
+      <color attach="background" args={["#d9e1e9"]} />
       <OrbitControls />
       <Environment preset="sunset" />
     </>
