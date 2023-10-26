@@ -7,6 +7,7 @@ import { useAtom, useAtomValue } from "jotai";
 
 import HoodieCharacter from "./HoodieCharacter";
 import Item from "./Item";
+import Shop from "./Shop";
 
 import { charactersAtom, mapAtom, userAtom } from "../jotai/users";
 import { buildModeAtom, draggedItemAtom, draggedItemRotationAtom, shopModeAtom } from "../jotai/mode";
@@ -114,6 +115,19 @@ const Experience = () => {
     }
   }, [isBuildMode]);
 
+  useEffect(() => {
+    if (items === null || items.length === 0) return;
+
+    if (isShopMode) {
+      setItems(gameMap?.gameItems || []);
+      camera.position.set(0, 3, 10);
+      controls.current?.target.set(0, 0, 0);
+    } else {
+      camera.position.set(8, 8, 8);
+      controls.current?.target.set(0, 0, 0);
+    }
+  }, [isShopMode]);
+
   if (!gameMap) return;
 
   return (
@@ -131,46 +145,52 @@ const Experience = () => {
           />
         ))}
 
-      {(isBuildMode ? items : gameMap.gameItems)?.map((item, idx) => {
-        return (
-          <Item
-            key={`${item}-${idx}`}
-            item={item}
-            onClick={() => {
-              if (isBuildMode) {
-                setDraggedItem(prev => (prev === null ? idx : prev));
-                setDraggedItemRotation(item.rotation || 0);
+      {isShopMode && <Shop />}
+
+      {!isShopMode && (
+        <>
+          {(isBuildMode ? items : gameMap.gameItems)?.map((item, idx) => {
+            return (
+              <Item
+                key={`${item}-${idx}`}
+                item={item}
+                onClick={() => {
+                  if (isBuildMode) {
+                    setDraggedItem(prev => (prev === null ? idx : prev));
+                    setDraggedItemRotation(item.rotation || 0);
+                  }
+                }}
+                isDragging={draggedItem === idx}
+                dragPosition={dragPosition}
+                dragRotation={draggedItemRotation}
+                canDrop={canDrop}
+              />
+            );
+          })}
+
+          <mesh
+            receiveShadow
+            rotation={[-Math.PI / 2, 0, 0]}
+            position-x={gameMap.size[0] / 2}
+            position-y={-0.001}
+            position-z={gameMap.size[1] / 2}
+            onClick={isBuildMode ? onNavigateBuildMode : onCharacterMove}
+            onPointerEnter={() => setIsOnFloor(true)}
+            onPointerLeave={() => setIsOnFloor(false)}
+            onPointerMove={e => {
+              if (!isBuildMode) return;
+              const newPosition = vector3ToGrid(e.point);
+              if (!dragPosition || dragPosition[0] !== newPosition[0] || dragPosition[1] !== newPosition[1]) {
+                setDragPosition(newPosition);
               }
             }}
-            isDragging={draggedItem === idx}
-            dragPosition={dragPosition}
-            dragRotation={draggedItemRotation}
-            canDrop={canDrop}
-          />
-        );
-      })}
-
-      <mesh
-        receiveShadow
-        rotation={[-Math.PI / 2, 0, 0]}
-        position-x={gameMap.size[0] / 2}
-        position-y={-0.001}
-        position-z={gameMap.size[1] / 2}
-        onClick={isBuildMode ? onNavigateBuildMode : onCharacterMove}
-        onPointerEnter={() => setIsOnFloor(true)}
-        onPointerLeave={() => setIsOnFloor(false)}
-        onPointerMove={e => {
-          if (!isBuildMode) return;
-          const newPosition = vector3ToGrid(e.point);
-          if (!dragPosition || dragPosition[0] !== newPosition[0] || dragPosition[1] !== newPosition[1]) {
-            setDragPosition(newPosition);
-          }
-        }}
-      >
-        <planeGeometry args={gameMap.size} />
-        <meshStandardMaterial color="#f0f0f0" />
-      </mesh>
-      {isBuildMode && !isShopMode && <Grid infiniteGrid fadeDistance={50} fadeStrength={5} />}
+          >
+            <planeGeometry args={gameMap.size} />
+            <meshStandardMaterial color="#f0f0f0" />
+          </mesh>
+          {isBuildMode && <Grid infiniteGrid fadeDistance={50} fadeStrength={5} />}
+        </>
+      )}
 
       <color attach="background" args={["#d9e1e9"]} />
       <directionalLight position={[-4, 4, -4]} castShadow intensity={0.35} shadow-mapSize={[1024, 1024]}>
@@ -187,6 +207,7 @@ const Experience = () => {
         minPolarAngle={0}
         maxPolarAngle={Math.PI / 2}
         screenSpacePanning={false}
+        enableZoom={!isShopMode}
       />
       <Environment preset="sunset" />
     </>

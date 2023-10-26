@@ -7,12 +7,12 @@ export interface GameCharacter {
   path: [number, number][];
 }
 
-interface GameItemProps {
+export interface GameItemProps {
   name: string;
   size: [number, number];
 }
 
-type GameItemsDictionary = {
+export type GameItemsDictionary = {
   [key: string]: GameItemProps;
 };
 
