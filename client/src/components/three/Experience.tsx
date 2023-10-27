@@ -13,6 +13,7 @@ import { charactersAtom, mapAtom, userAtom } from "../jotai/users";
 import { buildModeAtom, draggedItemAtom, draggedItemRotationAtom, shopModeAtom } from "../jotai/mode";
 import { socket } from "@/socket";
 import { useGrid } from "@/hooks";
+import { GameItemProps, PositionedGameItem } from "@/types/socket";
 
 const Experience = () => {
   const { scene, camera } = useThree();
@@ -25,11 +26,11 @@ const Experience = () => {
   const { vector3ToGrid, gridToVector3 } = useGrid();
 
   const [isBuildMode, setIsBuildMode] = useAtom(buildModeAtom);
-  const isShopMode = useAtomValue(shopModeAtom);
+  const [isShopMode, setIsShopMode] = useAtom(shopModeAtom);
   const [draggedItem, setDraggedItem] = useAtom(draggedItemAtom);
   const [draggedItemRotation, setDraggedItemRotation] = useAtom(draggedItemRotationAtom);
-  const [dragPosition, setDragPosition] = useState<[number, number] | null>(null);
-  const [items, setItems] = useState(gameMap ? gameMap.gameItems : null);
+  const [dragPosition, setDragPosition] = useState<[number, number]>([0, 0]);
+  const [items, setItems] = useState<PositionedGameItem[]>(gameMap ? gameMap.gameItems : []);
   const [canDrop, setCanDrop] = useState(false);
 
   const [isOnFloor, setIsOnFloor] = useState(false);
@@ -48,6 +49,7 @@ const Experience = () => {
       if (canDrop) {
         setItems(prev => {
           const newItems = [...(prev || [])];
+          delete newItems[draggedItem].tmp;
 
           newItems[draggedItem].gridPosition = vector3ToGrid(e.point);
           newItems[draggedItem].rotation = draggedItemRotation;
@@ -58,10 +60,36 @@ const Experience = () => {
     }
   };
 
+  const onItemSelected = (item: GameItemProps) => {
+    console.log("item : ", item);
+
+    setIsShopMode(false);
+
+    setItems(prev => [
+      ...prev,
+      {
+        ...item,
+        gridPosition: [0, 0],
+        tmp: true,
+      },
+    ]);
+
+    setDraggedItem(items.length);
+    setDraggedItemRotation(0);
+  };
+
   useEffect(() => {
-    if (!draggedItem || !items || !dragPosition || !gameMap) return;
+    if (draggedItem === null) {
+      const newItems = items.filter(item => !item.tmp);
+      setItems(newItems);
+    }
+  }, [draggedItem]);
+
+  useEffect(() => {
+    if (!draggedItem || !items || !gameMap) return;
 
     const item = items[draggedItem];
+
     const width = draggedItemRotation === 1 || draggedItemRotation === 3 ? item.size[1] : item.size[0];
     const height = draggedItemRotation === 1 || draggedItemRotation === 3 ? item.size[0] : item.size[1];
 
@@ -119,7 +147,6 @@ const Experience = () => {
     if (items === null || items.length === 0) return;
 
     if (isShopMode) {
-      setItems(gameMap?.gameItems || []);
       camera.position.set(0, 3, 10);
       controls.current?.target.set(0, 0, 0);
     } else {
@@ -145,7 +172,7 @@ const Experience = () => {
           />
         ))}
 
-      {isShopMode && <Shop />}
+      {isShopMode && <Shop onItemSelected={onItemSelected} />}
 
       {!isShopMode && (
         <>
@@ -180,7 +207,7 @@ const Experience = () => {
             onPointerMove={e => {
               if (!isBuildMode) return;
               const newPosition = vector3ToGrid(e.point);
-              if (!dragPosition || dragPosition[0] !== newPosition[0] || dragPosition[1] !== newPosition[1]) {
+              if (dragPosition[0] !== newPosition[0] || dragPosition[1] !== newPosition[1]) {
                 setDragPosition(newPosition);
               }
             }}

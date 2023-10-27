@@ -21,6 +21,7 @@ export interface PositionedGameItem extends GameItemProps {
   rotation?: number;
   walkable?: boolean;
   wall?: boolean;
+  tmp?: boolean;
 }
 
 export interface GameMap {

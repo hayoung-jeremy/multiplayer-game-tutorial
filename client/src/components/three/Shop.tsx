@@ -6,8 +6,13 @@ import { useAtomValue } from "jotai";
 import { itemsAtom } from "../jotai/item";
 import { mapAtom } from "../jotai/users";
 import ShopItem from "./ShopItem";
+import { GameItemProps } from "@/types/socket";
 
-const Shop = () => {
+interface Props {
+  onItemSelected: (item: GameItemProps) => void;
+}
+
+const Shop = ({ onItemSelected }: Props) => {
   const items = useAtomValue(itemsAtom);
   const gameMap = useAtomValue(mapAtom);
 
@@ -22,7 +27,7 @@ const Shop = () => {
       const xPos = x;
       x += item.size[0] / gameMap.gridDivision + 1;
       maxX.current = x;
-      return <ShopItem key={item.name + idx} item={item} position-x={xPos} />;
+      return <ShopItem key={item.name + idx} item={item} position-x={xPos} onClick={() => onItemSelected(item)} />;
     });
   }, [items]);
 
