@@ -1,12 +1,16 @@
+import { createServer } from "http";
 import { Server } from "socket.io";
 import pathfinding from "pathfinding";
 
 import { gameMap, gameItems } from "./constants/index.js";
 import { generateRandomHexColor } from "./utils/index.js";
 
-const io = new Server({
+const httpServer = createServer();
+
+const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "*",
+    methods: ["GET", "POST"],
   },
 });
 

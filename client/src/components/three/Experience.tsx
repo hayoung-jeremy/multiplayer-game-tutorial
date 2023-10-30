@@ -79,6 +79,7 @@ const Experience = () => {
   };
 
   useEffect(() => {
+    console.log("draggedItem : ", draggedItem);
     if (draggedItem === null) {
       const newItems = items.filter(item => !item.tmp);
       setItems(newItems);
@@ -86,7 +87,7 @@ const Experience = () => {
   }, [draggedItem]);
 
   useEffect(() => {
-    if (!draggedItem || !items || !gameMap) return;
+    if (draggedItem === null || !items || !gameMap) return;
 
     const item = items[draggedItem];
 

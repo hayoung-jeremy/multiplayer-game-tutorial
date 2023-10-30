@@ -50,12 +50,9 @@ export const gameMap = {
     {
       ...gameItems.armchair,
       gridPosition: [9, 6],
+      rotation: 0,
     },
-    {
-      ...gameItems.armchair,
-      gridPosition: [9, 10],
-      rotation: 2,
-    },
+
     {
       ...gameItems.bed,
       gridPosition: [15, 0],

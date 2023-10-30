@@ -13,7 +13,7 @@ const Navigator = () => {
   return (
     <nav className="fixed bottom-10 left-1/2 translate-x-[-50%] pointer-events-none z-[10000]">
       <ul className="flex items-center justify-center gap-2 pointer-events-auto">
-        {(buildMode || shopMode) && !draggedItem && (
+        {(buildMode || shopMode) && draggedItem === null && (
           <li
             onClick={() => (shopMode ? setShopMode(false) : setBuildMode(false))}
             className={cls(
@@ -45,7 +45,7 @@ const Navigator = () => {
             <ViewIn3D />
           </li>
         )}
-        {buildMode && !shopMode && !draggedItem && (
+        {buildMode && !shopMode && draggedItem === null && (
           <li
             onClick={() => setShopMode(true)}
             className={cls(
@@ -61,7 +61,7 @@ const Navigator = () => {
             <Store />
           </li>
         )}
-        {buildMode && !shopMode && draggedItem && (
+        {buildMode && !shopMode && draggedItem !== null && (
           <li
             onClick={() => setDraggedItemRotation(draggedItemRotation === 3 ? 0 : draggedItemRotation + 1)}
             className={cls(
@@ -77,7 +77,7 @@ const Navigator = () => {
             <Rotate360 />
           </li>
         )}
-        {buildMode && !shopMode && draggedItem && (
+        {buildMode && !shopMode && draggedItem !== null && (
           <li
             onClick={() => setDraggedItem(null)}
             className={cls(
